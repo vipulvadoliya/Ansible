@@ -1,0 +1,7 @@
+---
+- hosts: test
+  remote_user: root
+  tasks:
+  - shell: curl -sL https://rpm.nodesource.com/setup_6.x | bash -
+  - name: installing Nodejs to compile the code
+    yum: name=nodejs state=latest
