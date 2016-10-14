@@ -1,0 +1,19 @@
+---
+- hosts: test
+  tasks:
+
+   - name: Verify Site
+     uri: url=http://test.autodesk.com
+
+   - firewalld: port=80/tcp permanent=true state=enabled
+  
+   - firewalld: port=8080/tcp permanent=true state=enabled
+  
+   - firewalld: masquerade=yes state=enabled permanent=true zone=public
+
+   - name: Port forwarding 8080 to 80
+     shell: firewall-cmd --permanent --zone=public --add-forward-port=port=8080:proto=tcp:toport=80
+
+   - name: restarting firewall service
+     shell: firewall-cmd --reload
+
