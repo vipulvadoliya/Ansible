@@ -1,0 +1,9 @@
+---
+- hosts: test
+  tasks:
+
+   - name: AllowOverride in httpd.conf file
+     lineinfile: dest=/etc/httpd/conf/httpd.conf
+                 line="Listen 80"
+                 state=absent
+

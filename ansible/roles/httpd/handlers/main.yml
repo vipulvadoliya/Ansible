@@ -1,0 +1,44 @@
+---
+# handlers file for httpd
+- name: Start httpd
+  service: name=httpd.service state=started
+
+- name: Reload httpd
+  service: name=httpd.service state=reloaded
+
+- name: Reload firewalld
+  service: name=firewalld.service state=restarted
+
+- name: Service httpd enable
+  service: name=httpd.service enabled=yes
+
+- name: AllowOverride in httpd.conf file
+  lineinfile: dest=/etc/httpd/conf/httpd.conf
+              line="<Directory /var/www> \n
+                    AllowOverride All \n
+                    </Directory>"
+              state=present
+
+- name: Include sites-enabled/*.conf in httpd.conf file
+  lineinfile: dest=/etc/httpd/conf/httpd.conf
+              line="IncludeOptional sites-enabled/*.conf"
+              state=present
+
+- name: Open port 80
+  firewalld: port=80/tcp permanent=true state=enabled
+
+- name: Open port 8080
+  firewalld: port=8080/tcp permanent=true state=enabled
+
+- name: Enable masquerade
+  firewalld: masquerade=yes state=enabled permanent=true zone=public
+
+- name: Port forwarding 8080 to 80
+  shell: firewall-cmd --permanent --zone=public --add-forward-port=port=8080:proto=tcp:toport=80
+
+- name: Verify test Site
+  uri: url=http://test.autodesk.com
+
+- name: Verify test1 Site
+  uri: url=http://test1.autodesk.com
+

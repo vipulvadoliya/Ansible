@@ -1,0 +1,15 @@
+---
+- name: install ntp
+  yum: name=ntp state=latest 
+
+- name: Reload NTP service
+  service: name=ntp.service state=started
+  
+- name: Enable NTP service
+  service: name=ntp.service enabled=yes
+
+- name: Install yum-cron for auto security update
+  yum: name:yum-cron state=latest
+
+- name: copy config file for auto update
+  copy: src=/etc/yum/yum-cron.conf dest=/etc/yum

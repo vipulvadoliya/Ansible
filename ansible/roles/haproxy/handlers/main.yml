@@ -1,0 +1,25 @@
+---
+# handlers file for haproxy
+- name: Reload Rsyslog
+  service: name=rsyslog.service state=restarted
+
+- name: Start Haproxy
+  service: name=haproxy.service state=started
+
+- name: Reload Haproxy
+  service: name=haproxy.service state=restarted
+
+- name: Enable Haproxy
+  service: name=haproxy.service enabled=yes
+
+- name: Open port 80
+  firewalld: port=8080/tcp permanent=true state=enabled
+
+- name: Open port 8080
+  firewalld: port=8080/tcp permanent=true state=enabled
+
+- name: Enable Http on firewall
+  firewalld: zone=public service=http permanent=true state=enabled
+
+- name: Reload Firewall
+  service: name=firewalld.service state=restarted

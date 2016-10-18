@@ -1,0 +1,23 @@
+---
+- hosts: haproxy
+  become_user: root
+  become: true
+  become_method: sudo
+  tasks:
+
+   - name: install ntp
+     yum: name=ntp state=latest
+
+   - name: Reload ntp service
+     service: name=ntpd.service state=started
+  
+   - name: Enable ntp service
+     service: name=ntpd.service enabled=yes
+  
+   - name: install yum-cron
+     yum: name=yum-cron state=latest
+
+   - name: copy config file for auto update enable 
+     copy: src=/etc/yum/yum-cron.conf dest=/etc/yum/
+
+

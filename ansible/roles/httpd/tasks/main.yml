@@ -1,0 +1,61 @@
+---
+# tasks file for httpd
+- name: Install httpd
+  yum: name=httpd state=latest
+
+# create a directory if it doesn't exist
+- file: path=/etc/httpd/sites-available state=directory mode=0755
+
+# create a directory if it doesn't exist
+- file: path=/etc/httpd/sites-enabled state=directory mode=0755
+
+- name: Add Config File for test
+  template: src=test.autodesk.com.conf dest=/etc/httpd/sites-available
+
+- name: Add Config File for test1
+  template: src=test1.autodesk.com.conf dest=/etc/httpd/sites-available
+
+- name: Creating Soft link for sites-enabled for test
+  file: src=/etc/httpd/sites-available/test.autodesk.com.conf dest=/etc/httpd/sites-enabled/test.autodesk.com.conf state=link
+
+- name: Creating Soft link for sites-enabled for test1
+  file: src=/etc/httpd/sites-available/test1.autodesk.com.conf dest=/etc/httpd/sites-enabled/test1.autodesk.com.conf state=link
+
+- name: AllowOverride in httpd.conf file
+  lineinfile: dest=/etc/httpd/conf/httpd.conf
+              line="Listen 80"
+              state=absent
+
+- name: AllowOverride in httpd.conf file
+  lineinfile: dest=/etc/httpd/conf/httpd.conf
+              line="Listen 8080 \n
+                    <Directory /var/www> \n
+                    AllowOverride All \n
+                    </Directory>"
+              state=present
+
+- name: Include sites-enabled/*.conf in httpd.conf file
+  lineinfile: dest=/etc/httpd/conf/httpd.conf
+              line="IncludeOptional sites-enabled/*.conf"
+              state=present
+ 
+- name: Copy index files for test.autodesk.com the virtual host
+  unarchive: src=test.autodesk.com.tar.gz dest=/var/www/
+
+#- firewalld: port=80/tcp permanent=true state=enabled
+
+#- firewalld: port=8080/tcp permanent=true state=enabled
+
+#- firewalld: masquerade=yes state=enabled permanent=true zone=public
+
+#- shell: firewall-cmd --permanent --zone=public --add-forward-port=port=8080:proto=tcp:toport=80
+
+- name: Copy index files for test1.autodesk.com the virtual host
+  unarchive: src=test1.autodesk.com.tar.gz dest=/var/www/
+  notify:
+   - Reload firewalld
+   - Open port 8080
+   - Start httpd
+   - Reload httpd
+   - Reload firewalld
+   - Service httpd enable

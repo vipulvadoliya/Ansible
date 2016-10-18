@@ -1,0 +1,27 @@
+---
+# tasks file for haproxy
+- name: Install haproxy
+  yum: name=haproxy state=latest
+
+- name: copy log config file
+  copy: src=log/haproxy.conf dest=/etc/rsyslog.d/
+
+- name: copy configuration file
+  template: src=haproxy.cfg.j2 dest=/etc/haproxy/haproxy.cfg
+
+- name: Changing rsyslog.conf file
+  lineinfile: dest=/etc/rsyslog.conf
+              line="$ModLoad imudp \n
+              $UDPServerRun 514 \n
+              $AllowedSender UDP, 127.0.0.1 \n"
+              state=present
+  notify:
+   - Reload Rsyslog
+   - Start Haproxy
+   - Reload Haproxy
+   - Enable Haproxy
+   - Open port 80
+   - Open port 8080
+   - Enable Http on firewall
+   - Reload Firewall
+
